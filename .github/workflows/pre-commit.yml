@@ -3,11 +3,13 @@ name: pre-commit
 on:
   pull_request:
     branches:
-      - "17.0*"
+      - "17.0*"\
+      - "test_*"
   push:
     branches:
       - "17.0"
       - "17.0-ocabot-*"
+      - "test_*"
 
 jobs:
   pre-commit:

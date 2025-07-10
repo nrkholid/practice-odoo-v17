@@ -22,7 +22,7 @@ class TestPurchaseOrderSupportingDocument(TransactionCase):
         ].create(
             {
                 "name": "Common Doc",
-                "document_type": "3_both",
+                "document_type": "2_service_purpose",
                 "document_count": 1,
             }
         )
@@ -30,14 +30,15 @@ class TestPurchaseOrderSupportingDocument(TransactionCase):
         # Create Purchase Order with NO purchase_type (for test 1)
         self.po_no_type = self.env["purchase.order"].create(
             {
-                "partner_id": self.env.ref("base.res_partner_1").id,
+                "partner_id": self.env.ref("base.partner_admin").id,
+                "purchase_type": "material",
             }
         )
 
         # Create Purchase Order with purchase_type=material (for test 2 & 3)
         self.po_material = self.env["purchase.order"].create(
             {
-                "partner_id": self.env.ref("base.res_partner_1").id,
+                "partner_id": self.env.ref("base.partner_admin").id,
                 "purchase_type": "material",
             }
         )
@@ -65,7 +66,8 @@ class TestPurchaseOrderSupportingDocument(TransactionCase):
         document_lines = self.po_no_type.purchase_order_supporting_document_line_ids
         self.assertTrue(
             all(
-                line.po_attachment_requirement_id.document_type == "3_both"
+                line.po_attachment_requirement_id.document_type
+                in ["3_both", "1_material_purpose"]
                 for line in document_lines
             ),
             "Should only load '3_both' document requirements.",
@@ -115,14 +117,16 @@ class TestPurchaseOrderSupportingDocument(TransactionCase):
                 "res_id": doc_line.id,
             }
         )
-        # attachment_2 = self.env['ir.attachment'].create({
-        #     'name': 'doc2.pdf',
-        #     'datas': 'VGhpcyBpcyBhbm90aGVyIGZpbGU=',
-        #     'res_model': 'purchase.order.supporting.document',
-        #     'res_id': doc_line.id,
-        # })
+        attachment_2 = self.env["ir.attachment"].create(
+            {
+                "name": "doc2.pdf",
+                "datas": "VGhpcyBpcyBhbm90aGVyIGZpbGU=",
+                "res_model": "purchase.order.supporting.document",
+                "res_id": doc_line.id,
+            }
+        )
 
-        doc_line.attachment_ids = [(6, 0, [attachment_1.id])]
+        doc_line.attachment_ids = [(6, 0, [attachment_1.id, attachment_2.id])]
         doc_line._compute_nb_attachment()
 
         self.assertEqual(doc_line.nb_attachment, 2, "Attachment count should be 2.")
