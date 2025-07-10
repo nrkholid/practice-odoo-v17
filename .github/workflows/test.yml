@@ -4,11 +4,12 @@ on:
   pull_request:
     branches:
       - "17.0*"
+      - "test_*"
   push:
     branches:
       - "17.0"
       - "17.0-ocabot-*"
-
+      - "test_*"
 jobs:
   unreleased-deps:
     runs-on: ubuntu-latest
