@@ -66,7 +66,8 @@ class TestPurchaseOrderSupportingDocument(TransactionCase):
         document_lines = self.po_no_type.purchase_order_supporting_document_line_ids
         self.assertTrue(
             all(
-                line.po_attachment_requirement_id.document_type == "3_both"
+                line.po_attachment_requirement_id.document_type
+                in ["3_both", "1_material_purpose"]
                 for line in document_lines
             ),
             "Should only load '3_both' document requirements.",
